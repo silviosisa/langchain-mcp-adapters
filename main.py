@@ -14,12 +14,19 @@ llm = ChatOpenAI()
 
 stdio_server_params = StdioServerParameters(
     command="python",
-    args=["/Users/admin/code/mcp/section6/mcp-crash-course/servers/math-server.py"],
+    args=["/Users/admin/code/mcp/section6/mcp-crash-course/servers/math_server.py"],
 )
 
 
 async def main():
-    print("Hello from mcp-crash-course!")
+    async with stdio_client(stdio_server_params) as (read, write):
+        async with ClientSession(read_stream=read, write_stream=write) as session:
+            await session.initialize()
+            print('session was initialized')
+            tools = await session.list_tools()
+            
+            agent = create_react_agent(llm, tools)
+
 
 
 if __name__ == "__main__":
